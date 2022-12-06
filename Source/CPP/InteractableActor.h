@@ -11,8 +11,8 @@ UCLASS()
 class CPP_API AInteractableActor : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AInteractableActor();
 
