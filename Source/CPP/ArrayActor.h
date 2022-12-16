@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "BaseUserWidget.h"
 #include "Components/WidgetComponent.h"
 #include "CoreMinimal.h"
 #include "InteractableActor.h"
@@ -18,13 +19,15 @@ class CPP_API AArrayActor : public AInteractableActor
 public:
 	AArrayActor();
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void CastToShowCardsWidget();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PreSaved")
-		TArray<UTexture2D*> Cards;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PreSaved")
 		UWidgetComponent* ShowCardsBlueprintComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PreSaved")
+		class TSubclassOf<UUserWidget> ShowCardsBlueprint;
+
+	UPROPERTY(BlueprintReadWrite, Category = "WidgetVariables")
+		TArray<UTexture2D*> DiceArray;
+	UPROPERTY(BlueprintReadWrite, Category = "WidgetVariables")
+		int MaxDiceValue = 0;
 
 private:
 	virtual void InteractableAction() override;
@@ -34,10 +37,19 @@ private:
 		void ShowBoard();
 	UFUNCTION()
 		void BackToPlayer();
+	UFUNCTION()
+		void ShuffleDices();
+
+	UFUNCTION(Category = Algo)
+		void MaxElement();
 
 	UPROPERTY(EditAnywhere, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* BoardCamera;
 
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* Board;
+
+	UPROPERTY(EditAnywhere)
+		TMap<UTexture2D*, int> DiceMap;
+
 };

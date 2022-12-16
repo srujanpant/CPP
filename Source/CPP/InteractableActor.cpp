@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "InteractableActor.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "CPPCharacter.h"
-#include "InteractableActor.h"
 
 // Sets default values
 AInteractableActor::AInteractableActor()
