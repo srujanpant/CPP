@@ -13,34 +13,39 @@ AArrayActor::AArrayActor()
 {
 	Board = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Board"));
 	BoardCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("BoardCamera"));
-	ShowCardsBlueprintComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("ShowCardsBlueprintComponent"));
+	ShowCardsBlueprintWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("ShowCardsBlueprintWidgetComponent"));
+	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent >(TEXT("WidgetInteractionComponent"));
 
 	Board->SetupAttachment(Scene);
 	BoardCamera->SetupAttachment(Scene);
-	ShowCardsBlueprintComponent->SetupAttachment(Board);
-	ShowCardsBlueprintComponent->ToggleVisibility(false);
+	ShowCardsBlueprintWidgetComponent->SetupAttachment(Board);
+	ShowCardsBlueprintWidgetComponent->ToggleVisibility(false);
+	WidgetInteractionComponent->InteractionSource = EWidgetInteractionSource::Mouse;
+
+	//Set Widget RecieveHardwareInput as true in Blueprint since its not possble to do it in C++ wihtout inheriting UWidgetInteractionComponent
 }
 
 void AArrayActor::InteractableAction()
 {
 	ShuffleDices();
-	ShowBoard();
-	MaxElement();
+	ShowCards();
 }
 
 void AArrayActor::DestroyAction()
 {
+	ShowCardsBlueprintWidgetComponent->ToggleVisibility(false);
+	MaxDiceValue = 0;
 }
 
-void AArrayActor::ShowBoard()
+void AArrayActor::ShowCards()
 {
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetIgnoreMoveInput(true);
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetViewTargetWithBlend(this, 0.5f);
 	UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetShowMouseCursor(true);
 
-	ShowCardsBlueprintComponent->SetWidgetClass(ShowCardsBlueprint);
-	ShowCardsBlueprintComponent->ToggleVisibility(true);
+	ShowCardsBlueprintWidgetComponent->SetWidgetClass(ShowCardsWidget);
+	ShowCardsBlueprintWidgetComponent->ToggleVisibility(true);
 }
 
 void AArrayActor::BackToPlayer()
@@ -68,16 +73,43 @@ void AArrayActor::ShuffleDices()
 		}
 	}
 	DiceArray.SetNum(4);
+
+	MaxElement();
 }
 
 void AArrayActor::MaxElement()
 {
-	TArray<int> DiceValues;
 	for (int i = 0; i < DiceArray.Num(); i++)
 	{
 		DiceValues.Add(*DiceMap.Find(DiceArray[i]));
 		MaxDiceValue = std::max(MaxDiceValue, DiceValues[i]);
 	}
+}
 
-	UE_LOG(LogTemp, Warning, TEXT("Check %d"), MaxDiceValue);
+void AArrayActor::SearchDice(int DiceNumber)
+{
+	switch (SearchType)
+	{
+	case LinearSearch:
+		for (int i = 0; i < DiceValues.Num(); i++)
+		{
+			if (DiceValues[i] == DiceNumber)
+			{
+				bSearchedDiceNumber = true;
+			}
+		}
+		if (bSearchedDiceNumber)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Dice Number found"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Dice not found"));
+		}
+		break;
+	case BinarySearch:
+		break;
+	default:
+		break;
+	}
 }

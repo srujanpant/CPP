@@ -4,7 +4,9 @@
 
 #include "BaseUserWidget.h"
 #include "Components/WidgetComponent.h"
+#include "Components/WidgetInteractionComponent.h"
 #include "CoreMinimal.h"
+#include "ESearchType.h"
 #include "InteractableActor.h"
 #include "ArrayActor.generated.h"
 
@@ -20,9 +22,11 @@ public:
 	AArrayActor();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PreSaved")
-		UWidgetComponent* ShowCardsBlueprintComponent;
+		UWidgetComponent* ShowCardsBlueprintWidgetComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PreSaved")
-		class TSubclassOf<UUserWidget> ShowCardsBlueprint;
+		TSubclassOf<UUserWidget> ShowCardsWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PreSaved")
+		UWidgetInteractionComponent* WidgetInteractionComponent;
 
 	UPROPERTY(BlueprintReadWrite, Category = "WidgetVariables")
 		TArray<UTexture2D*> DiceArray;
@@ -33,18 +37,24 @@ private:
 	virtual void InteractableAction() override;
 	virtual void DestroyAction() override;
 
-	UFUNCTION()
-		void ShowBoard();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void BackToPlayer();
-	UFUNCTION()
-		void ShuffleDices();
+	UFUNCTION(BlueprintCallable, Category = Algo)
+		void SearchDice(int DiceNumber);
 
 	UFUNCTION(Category = Algo)
 		void MaxElement();
 
+	UFUNCTION()
+		void ShowCards();
+	UFUNCTION()
+		void ShuffleDices();
+
 	UPROPERTY(EditAnywhere, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* BoardCamera;
+
+	UPROPERTY(EditAnywhere, Category = Algo)
+		TEnumAsByte<ESearchType> SearchType;
 
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* Board;
@@ -52,4 +62,8 @@ private:
 	UPROPERTY(EditAnywhere)
 		TMap<UTexture2D*, int> DiceMap;
 
+	UPROPERTY(EditAnywhere)
+		TArray<int> DiceValues;
+
+	bool bSearchedDiceNumber = false;
 };
