@@ -11,18 +11,30 @@
 
 AArrayActor::AArrayActor()
 {
+	CreateSubObject();
+	SetUpSubObjects();
+	DiceFoundVisibility = ESlateVisibility::Hidden;
+	DiceNotFoundVisibility = ESlateVisibility::Hidden;
+	//Set Widget RecieveHardwareInput as true in Blueprint since its not possble to do it in C++ wihtout inheriting UWidgetInteractionComponent
+}
+
+void AArrayActor::CreateSubObject()
+{
 	Board = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Board"));
 	BoardCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("BoardCamera"));
 	ShowCardsBlueprintWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("ShowCardsBlueprintWidgetComponent"));
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent >(TEXT("WidgetInteractionComponent"));
+}
 
+void AArrayActor::SetUpSubObjects()
+{
 	Board->SetupAttachment(Scene);
 	BoardCamera->SetupAttachment(Scene);
 	ShowCardsBlueprintWidgetComponent->SetupAttachment(Board);
+	ShowCardsBlueprintWidgetComponent->SetRelativeTransform(FTransform(FRotator(90, 0, 180), FVector(0, 0, 5), FVector(0.15, 0.15, 0.15)));
+	ShowCardsBlueprintWidgetComponent->SetDrawSize(FVector2D(1920, 1080));
 	ShowCardsBlueprintWidgetComponent->ToggleVisibility(false);
 	WidgetInteractionComponent->InteractionSource = EWidgetInteractionSource::Mouse;
-
-	//Set Widget RecieveHardwareInput as true in Blueprint since its not possble to do it in C++ wihtout inheriting UWidgetInteractionComponent
 }
 
 void AArrayActor::InteractableAction()
@@ -35,6 +47,8 @@ void AArrayActor::DestroyAction()
 {
 	ShowCardsBlueprintWidgetComponent->ToggleVisibility(false);
 	MaxDiceValue = 0;
+	DiceFoundVisibility = ESlateVisibility::Hidden;
+	DiceNotFoundVisibility = ESlateVisibility::Hidden;
 }
 
 void AArrayActor::ShowCards()
@@ -60,21 +74,32 @@ void AArrayActor::BackToPlayer()
 
 void AArrayActor::ShuffleDices()
 {
-	DiceMap.GenerateKeyArray(DiceArray);
-	if (DiceArray.Num() > 0)
+	if (DiceMap.Num() > 0)
 	{
-		for (int i = 0; i < DiceArray.Num(); ++i)
+		DiceMap.GenerateKeyArray(DiceArray);
+		if (DiceArray.Num() > 0)
 		{
-			int Index = FMath::RandRange(i, DiceArray.Num() - 1);
-			if (i != Index)
+			for (int i = 0; i < DiceArray.Num(); ++i)
 			{
-				DiceArray.Swap(i, Index);
+				int Index = FMath::RandRange(i, DiceArray.Num() - 1);
+				if (i != Index)
+				{
+					DiceArray.Swap(i, Index);
+				}
 			}
+
+			DiceArray.SetNum(4);
+			MaxElement();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("DiceArray null"));
 		}
 	}
-	DiceArray.SetNum(4);
-
-	MaxElement();
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("DiceMap null"));
+	}
 }
 
 void AArrayActor::MaxElement()
@@ -86,8 +111,11 @@ void AArrayActor::MaxElement()
 	}
 }
 
-void AArrayActor::SearchDice(int DiceNumber)
+void AArrayActor::SearchForDice(int DiceNumber)
 {
+	DiceFoundVisibility = ESlateVisibility::Hidden;
+	DiceNotFoundVisibility = ESlateVisibility::Hidden;
+
 	switch (SearchType)
 	{
 	case LinearSearch:
@@ -100,14 +128,47 @@ void AArrayActor::SearchDice(int DiceNumber)
 		}
 		if (bSearchedDiceNumber)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Dice Number found"));
+			DiceFoundVisibility = ESlateVisibility::Visible;
+			bSearchedDiceNumber = false;
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Dice not found"));
+			DiceNotFoundVisibility = ESlateVisibility::Visible;
 		}
 		break;
+
 	case BinarySearch:
+		SortDices();
+		break;
+
+	default:
+		break;
+	}
+}
+
+void AArrayActor::SortDices()
+{
+	switch (SortType)
+	{
+	case SelectionSort:
+		for (int i = 0; i < DiceValues.Num(); i++)
+		{
+			for (int j = i + 1; j < DiceValues.Num(); j++)
+			{
+				if (DiceValues[j] < DiceValues[i])
+				{
+					int temp = DiceValues[j];
+					DiceValues[j] = DiceValues[i];
+					DiceValues[i] = temp;
+				}
+			}
+		}
+		break;
+
+	case BubbleSort:
+		break;
+
+	case InsertionSort:
 		break;
 	default:
 		break;

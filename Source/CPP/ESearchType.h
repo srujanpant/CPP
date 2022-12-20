@@ -12,5 +12,5 @@ UENUM(BlueprintType)
 enum ESearchType
 {
 	LinearSearch		UMETA(DisplayName = "LinearSearch"),
-	BinarySearch		UMETA(DisplayName = "BinarySearch"),
+	BinarySearch		UMETA(DisplayName = "BinarySearch")
 };

@@ -7,6 +7,7 @@
 #include "Components/WidgetInteractionComponent.h"
 #include "CoreMinimal.h"
 #include "ESearchType.h"
+#include "ESortType.h"
 #include "InteractableActor.h"
 #include "ArrayActor.generated.h"
 
@@ -21,49 +22,55 @@ class CPP_API AArrayActor : public AInteractableActor
 public:
 	AArrayActor();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PreSaved")
-		UWidgetComponent* ShowCardsBlueprintWidgetComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PreSaved")
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WidgetVariables")
 		TSubclassOf<UUserWidget> ShowCardsWidget;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PreSaved")
-		UWidgetInteractionComponent* WidgetInteractionComponent;
-
 	UPROPERTY(BlueprintReadWrite, Category = "WidgetVariables")
 		TArray<UTexture2D*> DiceArray;
 	UPROPERTY(BlueprintReadWrite, Category = "WidgetVariables")
 		int MaxDiceValue = 0;
+	UPROPERTY(BlueprintReadWrite, Category = "WidgetVariables")
+		ESlateVisibility DiceFoundVisibility;
+	UPROPERTY(BlueprintReadWrite, Category = "WidgetVariables")
+		ESlateVisibility DiceNotFoundVisibility;
 
 private:
 	virtual void InteractableAction() override;
 	virtual void DestroyAction() override;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "WidgetFunctions")
 		void BackToPlayer();
-	UFUNCTION(BlueprintCallable, Category = Algo)
-		void SearchDice(int DiceNumber);
+	UFUNCTION(BlueprintCallable, Category = "WidgetFunctions")
+		void SearchForDice(int DiceNumber);
+	UFUNCTION(BlueprintCallable, Category = "WidgetFunctions")
+		void SortDices();
 
 	UFUNCTION(Category = Algo)
 		void MaxElement();
 
-	UFUNCTION()
-		void ShowCards();
-	UFUNCTION()
-		void ShuffleDices();
+	void ShowCards();
+	void ShuffleDices();
+	void CreateSubObject();
+	void SetUpSubObjects();
 
 	UPROPERTY(EditAnywhere, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* BoardCamera;
 
 	UPROPERTY(EditAnywhere, Category = Algo)
 		TEnumAsByte<ESearchType> SearchType;
+	UPROPERTY(EditAnywhere, Category = Algo)
+		TEnumAsByte<ESortType> SortType;
 
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* Board;
-
 	UPROPERTY(EditAnywhere)
 		TMap<UTexture2D*, int> DiceMap;
-
 	UPROPERTY(EditAnywhere)
-		TArray<int> DiceValues;
+		UWidgetComponent* ShowCardsBlueprintWidgetComponent;
+	UPROPERTY(EditAnywhere)
+		UWidgetInteractionComponent* WidgetInteractionComponent;
 
+	TArray<int> DiceValues;
 	bool bSearchedDiceNumber = false;
+	bool bSortedArray = false;
 };
