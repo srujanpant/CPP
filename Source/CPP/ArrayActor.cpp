@@ -49,6 +49,8 @@ void AArrayActor::DestroyAction()
 	MaxDiceValue = 0;
 	DiceFoundVisibility = ESlateVisibility::Hidden;
 	DiceNotFoundVisibility = ESlateVisibility::Hidden;
+	DiceValues.Empty();
+	DiceTextureArray.Empty();
 }
 
 void AArrayActor::ShowCards()
@@ -76,19 +78,19 @@ void AArrayActor::ShuffleDices()
 {
 	if (DiceMap.Num() > 0)
 	{
-		DiceMap.GenerateKeyArray(DiceArray);
-		if (DiceArray.Num() > 0)
+		DiceMap.GenerateKeyArray(DiceTextureArray);
+		if (DiceTextureArray.Num() > 0)
 		{
-			for (int i = 0; i < DiceArray.Num(); ++i)
+			for (int i = 0; i < DiceTextureArray.Num(); ++i)
 			{
-				int Index = FMath::RandRange(i, DiceArray.Num() - 1);
+				int Index = FMath::RandRange(i, DiceTextureArray.Num() - 1);
 				if (i != Index)
 				{
-					DiceArray.Swap(i, Index);
+					DiceTextureArray.Swap(i, Index);
 				}
 			}
 
-			DiceArray.SetNum(4);
+			DiceTextureArray.SetNum(4);
 			MaxElement();
 		}
 		else
@@ -104,9 +106,9 @@ void AArrayActor::ShuffleDices()
 
 void AArrayActor::MaxElement()
 {
-	for (int i = 0; i < DiceArray.Num(); i++)
+	for (int i = 0; i < DiceTextureArray.Num(); i++)
 	{
-		DiceValues.Add(*DiceMap.Find(DiceArray[i]));
+		DiceValues.Add(*DiceMap.Find(DiceTextureArray[i]));
 		MaxDiceValue = std::max(MaxDiceValue, DiceValues[i]);
 	}
 }
@@ -139,6 +141,8 @@ void AArrayActor::SearchForDice(int DiceNumber)
 
 	case BinarySearch:
 		SortDices();
+		for (int i = 0; i < DiceValues.Num(); i++)
+			UE_LOG(LogTemp, Warning, TEXT("DiceArray is %d"), DiceValues[i]);
 		break;
 
 	default:
@@ -153,23 +157,41 @@ void AArrayActor::SortDices()
 	case SelectionSort:
 		for (int i = 0; i < DiceValues.Num(); i++)
 		{
-			for (int j = i + 1; j < DiceValues.Num(); j++)
-			{
-				if (DiceValues[j] < DiceValues[i])
-				{
-					int temp = DiceValues[j];
-					DiceValues[j] = DiceValues[i];
-					DiceValues[i] = temp;
-				}
-			}
+			auto MinElement = std::min_element(DiceValues.GetData() + i, DiceValues.GetData() + DiceValues.Num());
+			std::swap(DiceValues[i], *MinElement);
 		}
 		break;
 
 	case BubbleSort:
+		for (int i = 0; i < DiceValues.Num() - 1; i++)
+		{
+			bool swapped = false;
+			for (int j = 0; j < DiceValues.Num() - 1 - i; j++)
+			{
+				if (DiceValues[j] > DiceValues[j + 1])
+				{
+					std::iter_swap(DiceValues.GetData() + j, DiceValues.GetData() + j + 1);
+					swapped = true;
+				}
+			}
+			if (!swapped)
+			{
+				break;
+			}
+		}
 		break;
 
 	case InsertionSort:
+		for (int i = 1; i < DiceValues.Num(); i++)
+		{
+			int current = DiceValues[i];
+			for (int j = i - 1; j >= 0 && DiceValues[j] > current; j--)
+			{
+				std::iter_swap(DiceValues.GetData() + j, DiceValues.GetData() + j + 1);
+			}
+		}
 		break;
+
 	default:
 		break;
 	}

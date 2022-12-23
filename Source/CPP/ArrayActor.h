@@ -26,7 +26,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WidgetVariables")
 		TSubclassOf<UUserWidget> ShowCardsWidget;
 	UPROPERTY(BlueprintReadWrite, Category = "WidgetVariables")
-		TArray<UTexture2D*> DiceArray;
+		TArray<UTexture2D*> DiceTextureArray;
 	UPROPERTY(BlueprintReadWrite, Category = "WidgetVariables")
 		int MaxDiceValue = 0;
 	UPROPERTY(BlueprintReadWrite, Category = "WidgetVariables")
