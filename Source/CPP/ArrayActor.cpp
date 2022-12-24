@@ -140,7 +140,7 @@ void AArrayActor::SearchForDice(int DiceNumber)
 		break;
 
 	case BinarySearch:
-		SortDices();
+		SortDices(false);
 		bSearchedDiceNumber = BinarySearchFunc(DiceValues, DiceNumber);
 		if (bSearchedDiceNumber)
 		{
@@ -158,17 +158,30 @@ void AArrayActor::SearchForDice(int DiceNumber)
 	}
 }
 
-void AArrayActor::SortDices()
+void AArrayActor::SortDices(bool bSortDices)
 {
 	switch (SortType)
 	{
 	case SelectionSort:
+	{
 		for (int i = 0; i < DiceValues.Num(); i++)
 		{
 			auto MinElement = std::min_element(DiceValues.GetData() + i, DiceValues.GetData() + DiceValues.Num());
 			std::swap(DiceValues[i], *MinElement);
+
+			if (bSortDices)
+			{
+				for (auto kv : DiceMap)
+				{
+					if (kv.Value == DiceValues[i])
+					{
+						DiceTextureArray[i] = kv.Key;
+					}
+				}
+			}
 		}
 		break;
+	}
 
 	case BubbleSort:
 		for (int i = 0; i < DiceValues.Num() - 1; i++)
@@ -187,6 +200,20 @@ void AArrayActor::SortDices()
 				break;
 			}
 		}
+
+		if (bSortDices)
+		{
+			for (int i = 0; i < DiceValues.Num(); i++)
+			{
+				for (auto kv : DiceMap)
+				{
+					if (kv.Value == DiceValues[i])
+					{
+						DiceTextureArray[i] = kv.Key;
+					}
+				}
+			}
+		}
 		break;
 
 	case InsertionSort:
@@ -196,6 +223,20 @@ void AArrayActor::SortDices()
 			for (int j = i - 1; j >= 0 && DiceValues[j] > current; j--)
 			{
 				std::iter_swap(DiceValues.GetData() + j, DiceValues.GetData() + j + 1);
+			}
+		}
+
+		if (bSortDices)
+		{
+			for (int i = 0; i < DiceValues.Num(); i++)
+			{
+				for (auto kv : DiceMap)
+				{
+					if (kv.Value == DiceValues[i])
+					{
+						DiceTextureArray[i] = kv.Key;
+					}
+				}
 			}
 		}
 		break;
@@ -227,3 +268,10 @@ bool AArrayActor::BinarySearchFunc(const TArray<int>& Array, int Value)
 	}
 	return false;
 }
+
+/*
+
+1. Sorted Integer array
+2. For each value of array, assign corresponding key texture to dice array
+
+*/

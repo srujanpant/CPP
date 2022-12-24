@@ -43,7 +43,7 @@ private:
 	UFUNCTION(BlueprintCallable, Category = "WidgetFunctions")
 		void SearchForDice(int DiceNumber);
 	UFUNCTION(BlueprintCallable, Category = "WidgetFunctions")
-		void SortDices();
+		void SortDices(bool bSortDices);
 
 	UFUNCTION(Category = Algo)
 		void MaxElement();
