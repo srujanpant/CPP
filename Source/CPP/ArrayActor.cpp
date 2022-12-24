@@ -171,11 +171,11 @@ void AArrayActor::SortDices(bool bSortDices)
 
 			if (bSortDices)
 			{
-				for (auto kv : DiceMap)
+				for (auto DiceMapper : DiceMap)
 				{
-					if (kv.Value == DiceValues[i])
+					if (DiceMapper.Value == DiceValues[i])
 					{
-						DiceTextureArray[i] = kv.Key;
+						DiceTextureArray[i] = DiceMapper.Key;
 					}
 				}
 			}
@@ -187,7 +187,7 @@ void AArrayActor::SortDices(bool bSortDices)
 		for (int i = 0; i < DiceValues.Num() - 1; i++)
 		{
 			bool swapped = false;
-			for (int j = 0; j < DiceValues.Num() - 1 - i; j++)
+			for (int j = 0; j < DiceValues.Num() - 1 - i && swapped; j++)
 			{
 				if (DiceValues[j] > DiceValues[j + 1])
 				{
@@ -195,21 +195,17 @@ void AArrayActor::SortDices(bool bSortDices)
 					swapped = true;
 				}
 			}
-			if (!swapped)
-			{
-				break;
-			}
 		}
 
 		if (bSortDices)
 		{
 			for (int i = 0; i < DiceValues.Num(); i++)
 			{
-				for (auto kv : DiceMap)
+				for (auto DiceMappper : DiceMap)
 				{
-					if (kv.Value == DiceValues[i])
+					if (DiceMappper.Value == DiceValues[i])
 					{
-						DiceTextureArray[i] = kv.Key;
+						DiceTextureArray[i] = DiceMappper.Key;
 					}
 				}
 			}
@@ -230,11 +226,11 @@ void AArrayActor::SortDices(bool bSortDices)
 		{
 			for (int i = 0; i < DiceValues.Num(); i++)
 			{
-				for (auto kv : DiceMap)
+				for (auto DiceMapper : DiceMap)
 				{
-					if (kv.Value == DiceValues[i])
+					if (DiceMapper.Value == DiceValues[i])
 					{
-						DiceTextureArray[i] = kv.Key;
+						DiceTextureArray[i] = DiceMapper.Key;
 					}
 				}
 			}
