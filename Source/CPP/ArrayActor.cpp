@@ -141,8 +141,16 @@ void AArrayActor::SearchForDice(int DiceNumber)
 
 	case BinarySearch:
 		SortDices();
-		for (int i = 0; i < DiceValues.Num(); i++)
-			UE_LOG(LogTemp, Warning, TEXT("DiceArray is %d"), DiceValues[i]);
+		bSearchedDiceNumber = BinarySearchFunc(DiceValues, DiceNumber);
+		if (bSearchedDiceNumber)
+		{
+			DiceFoundVisibility = ESlateVisibility::Visible;
+			bSearchedDiceNumber = false;
+		}
+		else
+		{
+			DiceNotFoundVisibility = ESlateVisibility::Visible;
+		}
 		break;
 
 	default:
@@ -195,4 +203,27 @@ void AArrayActor::SortDices()
 	default:
 		break;
 	}
+}
+
+bool AArrayActor::BinarySearchFunc(const TArray<int>& Array, int Value)
+{
+	int Low = 0;
+	int High = Array.Num() - 1;
+	while (Low <= High)
+	{
+		int Mid = Low + (High - Low) / 2;
+		if (Array[Mid] == Value)
+		{
+			return true;
+		}
+		else if (Array[Mid] < Value)
+		{
+			Low = Mid + 1;
+		}
+		else
+		{
+			High = Mid - 1;
+		}
+	}
+	return false;
 }

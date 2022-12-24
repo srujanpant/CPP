@@ -52,6 +52,7 @@ private:
 	void ShuffleDices();
 	void CreateSubObject();
 	void SetUpSubObjects();
+	bool BinarySearchFunc(const TArray<int>& Array, int Value);
 
 	UPROPERTY(EditAnywhere, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* BoardCamera;
